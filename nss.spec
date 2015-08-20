@@ -1,9 +1,9 @@
-%define nspr_version 4.10
+%define nspr_version 4.10.8
 %define unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.16.6
+Version:          3.19.2
 Release:          1
 License:          MPLv2
 URL:              http://www.mozilla.org/projects/security/pki/nss/

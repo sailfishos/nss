@@ -1,3 +1,7 @@
+* Thu Aug 20 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.19.2
+- Update to 3.19.2. Fixes MER#1254
+- Fixes CVE-2015-2721, CVE-2015-2730
+
 * Wed Mar 11 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.16.6
 - Fix nss.changes
 
