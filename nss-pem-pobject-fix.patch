@@ -1,0 +1,34 @@
+--- nss/lib/ckfw/pem/pobject.c.orig	2014-01-23 16:28:18.000000000 +0200
++++ nss/lib/ckfw/pem/pobject.c	2017-11-23 10:27:54.223998464 +0200
+@@ -630,6 +630,11 @@ pem_DestroyInternalObject
+         if (io->u.key.ivstring)
+             free(io->u.key.ivstring);
+         break;
++    case pemAll:
++        /* pemAll is not used, keep the compiler happy
++         * TODO: investigate a proper solution
++         */
++        return;
+     }
+ 
+     if (NULL != gobj)
+@@ -1044,7 +1049,9 @@ pem_CreateObject
+     int nobjs = 0;
+     int i;
+     int objid;
++#if 0
+     pemToken *token;
++#endif
+     int cipher;
+     char *ivstring = NULL;
+     pemInternalObject *listObj = NULL;
+@@ -1073,7 +1080,9 @@ pem_CreateObject
+     }
+     slotID = nssCKFWSlot_GetSlotID(fwSlot);
+ 
++#if 0
+     token = (pemToken *) mdToken->etc;
++#endif
+ 
+     /*
+      * only create keys and certs.

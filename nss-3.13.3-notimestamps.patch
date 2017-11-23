@@ -1,7 +1,7 @@
-Index: nss-3.20.1/nss/lib/ckfw/pem/ckpemver.c
+Index: nss-3.34/nss/lib/ckfw/pem/ckpemver.c
 ===================================================================
---- nss-3.20.1.orig/nss/lib/ckfw/pem/ckpemver.c
-+++ nss-3.20.1/nss/lib/ckfw/pem/ckpemver.c
+--- nss-3.34.orig/nss/lib/ckfw/pem/ckpemver.c
++++ nss-3.34/nss/lib/ckfw/pem/ckpemver.c
 @@ -53,7 +53,7 @@
   */
  const char __nss_ckpem_rcsid[] = "$Header: NSS Access to Flat Files in PEM format"

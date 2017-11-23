@@ -1,9 +1,9 @@
-%define nspr_version 4.10.8
+%define nspr_version 4.17
 %define unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.20.1
+Version:          3.34
 Release:          1
 License:          MPLv2
 URL:              http://www.mozilla.org/projects/security/pki/nss/
@@ -37,6 +37,7 @@ Patch2:           nss-nolocalsql.patch
 Patch6:           nss-enable-pem.patch
 Patch8:           nss-sysinit-userdb-first.patch
 Patch9:           nss-3.13.3-notimestamps.patch
+Patch10:          nss-pem-pobject-fix.patch
 
 %description
 Network Security Services (NSS) is a set of libraries designed to
@@ -129,8 +130,9 @@ low level services.
 %patch1 -p0
 %patch2 -p0
 %patch6 -p0 -b .libpem
-%patch8 -p0 -b .rh603313
+%patch8 -p0
 %patch9 -p1 -b .timestamping
+%patch10 -p0
 
 %build
 
