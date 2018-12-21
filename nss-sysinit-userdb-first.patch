@@ -1,7 +1,6 @@
-diff -up ./nss/lib/sysinit/nsssysinit.c.603313 ./nss/lib/sysinit/nsssysinit.c
---- ./nss/lib/sysinit/nsssysinit.c.603313	2010-10-15 13:57:42.719738316 -0700
-+++ ./nss/lib/sysinit/nsssysinit.c	2010-10-15 14:07:51.704637349 -0700
-@@ -263,16 +263,26 @@ get_list(char *filename, char *stripped_
+--- nss/lib/sysinit/nsssysinit.c	2018-12-19 16:54:54.326850754 +0200
++++ nss/lib/sysinit/nsssysinit.c	2018-12-19 17:05:34.932687833 +0200
+@@ -231,9 +231,19 @@
      sysdb = getSystemDB();
      userdb = getUserDB();
  
@@ -9,46 +8,35 @@ diff -up ./nss/lib/sysinit/nsssysinit.c.603313 ./nss/lib/sysinit/nsssysinit.c
 +    /* return a list of databases to open. First the system database */
 +    if (sysdb) {
 +        const char *readonly = userCanModifySystemDB() ? "" : "flags=readonly";
-+	module_list[next++] = PR_smprintf(
-+	    "library= "
-+	    "module=\"NSS system database\" "
-+	    "parameters=\"configdir='sql:%s' tokenDescription='NSS system database' %s\" "
-+	    "NSS=\"trustOrder=80 %sflags=internal,critical\"",
++        module_list[next++] = PR_smprintf(
++           "library= "
++           "module=\"NSS system database\" "
++           "parameters=\"configdir='sql:%s' tokenDescription='NSS system database' %s\" "
++           "NSS=\"trustOrder=80 %sflags=internal,critical\"",
 +            sysdb, readonly, nssflags);
 +    }
 +
 +    /* Next the user database, but not for root. */
      if (userdb != NULL && !userIsRoot()) {
--	/* return a list of databases to open. First the user Database */
- 	module_list[next++] = PR_smprintf(
- 	    "library= "
- 	    "module=\"NSS User database\" "
- 	    "parameters=\"configdir='sql:%s' %s tokenDescription='NSS user database'\" "
--        "NSS=\"trustOrder=75 %sflags=internal%s\"",
--        userdb, stripped_parameters, nssflags,
--        isFIPS ? ",FIPS" : "");
-+            "NSS=\"trustOrder=75 %sflags=internal%s\"",
-+            userdb, stripped_parameters, nssflags,
-+            isFIPS ? ",FIPS" : "");
- 
- 	/* now open the user's defined PKCS #11 modules */
- 	/* skip the local user DB entry */
-@@ -283,17 +293,7 @@ get_list(char *filename, char *stripped_
- 	    "module=\"NSS User database\" "
- 	    "parameters=\"configdir='sql:%s' %s\" "
- 	    "NSS=\"flags=internal,moduleDBOnly,defaultModDB,skipFirst\"", 
--		userdb, stripped_parameters);
--	}
--
--    /* now the system database (always read only unless it's root) */
--    if (sysdb) {
--	    const char *readonly = userCanModifySystemDB() ? "" : "flags=readonly";
--	    module_list[next++] = PR_smprintf(
--	      "library= "
--	      "module=\"NSS system database\" "
--	      "parameters=\"configdir='sql:%s' tokenDescription='NSS system database' %s\" "
--	      "NSS=\"trustOrder=80 %sflags=internal,critical\"",sysdb, readonly, nssflags);
-+            userdb, stripped_parameters);
+-        /* return a list of databases to open. First the user Database */
+         module_list[next++] = PR_smprintf(
+             "library= "
+             "module=\"NSS User database\" "
+@@ -252,17 +262,6 @@
+             userdb, stripped_parameters);
      }
  
+-    /* now the system database (always read only unless it's root) */
+-    if (sysdb) {
+-        const char *readonly = userCanModifySystemDB() ? "" : "flags=readonly";
+-        module_list[next++] = PR_smprintf(
+-            "library= "
+-            "module=\"NSS system database\" "
+-            "parameters=\"configdir='sql:%s' tokenDescription='NSS system database' %s\" "
+-            "NSS=\"trustOrder=80 %sflags=internal,critical\"",
+-            sysdb, readonly, nssflags);
+-    }
+-
      /* that was the last module */
+     module_list[next] = 0;
+ 

@@ -3,7 +3,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.20.1
+Version:          3.41
 Release:          1
 License:          MPLv2
 URL:              http://www.mozilla.org/projects/security/pki/nss/
@@ -30,13 +30,11 @@ Source7:          blank-key4.db
 Source8:          system-pkcs11.txt
 Source9:          setup-nsssysinit.sh
 Source11:         nss-prelink.conf
-Source12:         %{name}-pem-20140125.tar.bz2
+Source12:         %{name}-pem-1.0.4.tar.xz
 
 Patch1:           nss-no-rpath.patch
 Patch2:           nss-nolocalsql.patch
-Patch6:           nss-enable-pem.patch
 Patch8:           nss-sysinit-userdb-first.patch
-Patch9:           nss-3.13.3-notimestamps.patch
 
 %description
 Network Security Services (NSS) is a set of libraries designed to
@@ -118,7 +116,7 @@ Group:            Development/Libraries
 Requires:         nss-devel = %{version}-%{release}
 
 %description pkcs11-devel
-Library files for developing PKCS #11 modules using basic NSS 
+Library files for developing PKCS #11 modules using basic NSS
 low level services.
 
 
@@ -128,9 +126,7 @@ low level services.
 
 %patch1 -p0
 %patch2 -p0
-%patch6 -p0 -b .libpem
 %patch8 -p0 -b .rh603313
-%patch9 -p1 -b .timestamping
 
 %build
 
@@ -162,34 +158,49 @@ export USE_64=1
 
 %{__make} -C ./nss
 
-
-# Produce .chk files for the final stripped binaries
-%define __spec_install_post \
-    %{?__debug_package:%{__debug_install_post}} \
-    %{__arch_install_post} \
-    %{__os_install_post} \
-    LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{unsupported_tools_directory}/shlibsign -i $RPM_BUILD_ROOT/%{_libdir}/libsoftokn3.so \
-    LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{unsupported_tools_directory}/shlibsign -i $RPM_BUILD_ROOT/%{_libdir}/libfreebl3.so \
-%{nil}
-
-%install
-
 # Set up our package file
-%{__mkdir_p} $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
+%{__mkdir_p} dist/%{_libdir}/pkgconfig
 %{__cat} %{SOURCE1} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%prefix%%,%{_prefix},g" \
                           -e "s,%%exec_prefix%%,%{_prefix},g" \
                           -e "s,%%includedir%%,%{_includedir}/nss3,g" \
                           -e "s,%%NSPR_VERSION%%,%{nspr_version},g" \
                           -e "s,%%NSS_VERSION%%,%{version},g" > \
-                          $RPM_BUILD_ROOT/%{_libdir}/pkgconfig/nss.pc
+                          dist/%{_libdir}/pkgconfig/nss.pc
+
+# PEM plugin
+%{__mkdir_p} nss-pem-1.0.4/build
+cd nss-pem-1.0.4/build
+PKG_CONFIG_PATH=$PWD/../../dist/%{_libdir}/pkgconfig cmake -DCMAKE_PROJECT_libnsspem_INCLUDE=../../nss-pem.cmake ../src
+make
+
+%install
+export FREEBL_NO_DEPEND=1
+export FREEBL_LOWHASH=1
+export BUILD_OPT=1
+export XCFLAGS=$RPM_OPT_FLAGS
+export PKG_CONFIG_ALLOW_SYSTEM_LIBS=1
+export PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1
+export NSPR_INCLUDE_DIR=`/usr/bin/pkg-config --cflags-only-I nspr | sed 's/-I//'`
+export NSPR_LIB_DIR=%{_libdir}
+export USE_SYSTEM_ZLIB=1
+export NSS_USE_SYSTEM_SQLITE=1
+%ifarch x86_64 ppc64 ia64 s390x sparc64 aarch64
+export USE_64=1
+%endif
+
+# This will do the signing
+%{__make} -C ./nss install
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_libdir}
+%{__install} -m 644 dist/*OPT.OBJ/lib/libfreebl3.chk $RPM_BUILD_ROOT/%{_libdir}
+%{__install} -m 644 dist/*OPT.OBJ/lib/libsoftokn3.chk $RPM_BUILD_ROOT/%{_libdir}
 
 NSS_VMAJOR=`cat nss/lib/nss/nss.h | grep "#define.*NSS_VMAJOR" | awk '{print $3}'`
 NSS_VMINOR=`cat nss/lib/nss/nss.h | grep "#define.*NSS_VMINOR" | awk '{print $3}'`
 NSS_VPATCH=`cat nss/lib/nss/nss.h | grep "#define.*NSS_VPATCH" | awk '{print $3}'`
 
-export NSS_VMAJOR 
-export NSS_VMINOR 
+export NSS_VMAJOR
+export NSS_VMINOR
 export NSS_VPATCH
 
 %{__mkdir_p} $RPM_BUILD_ROOT/%{_bindir}
@@ -215,10 +226,10 @@ install -m 755 %{SOURCE9} $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit.sh
 
 # Copy the binary libraries we want
 for file in libsoftokn3.so libfreebl3.so libnss3.so libnssutil3.so \
-            libssl3.so libsmime3.so libnssckbi.so libnsspem.so libnssdbm3.so \
+            libssl3.so libsmime3.so libnssckbi.so libnssdbm3.so \
             libnsssysinit.so
 do
-  %{__install} -m 755 dist/*.OBJ/lib/$file $RPM_BUILD_ROOT/%{_libdir}
+  %{__install} -m 755 dist/*OPT.OBJ/lib/$file $RPM_BUILD_ROOT/%{_libdir}
 done
 
 # Install the empty NSS db files
@@ -238,19 +249,19 @@ done
 # Copy the development libraries we want
 for file in libcrmf.a libnssb.a libnssckfw.a
 do
-  %{__install} -m 644 dist/*.OBJ/lib/$file $RPM_BUILD_ROOT/%{_libdir}
+  %{__install} -m 644 dist/*OPT.OBJ/lib/$file $RPM_BUILD_ROOT/%{_libdir}
 done
 
 # Copy the binaries we want
 for file in certutil cmsutil crlutil modutil pk12util signtool signver ssltap
 do
-  %{__install} -m 755 dist/*.OBJ/bin/$file $RPM_BUILD_ROOT/%{_bindir}
+  %{__install} -m 755 dist/*OPT.OBJ/bin/$file $RPM_BUILD_ROOT/%{_bindir}
 done
 
 # Copy the binaries we ship as unsupported
 for file in atob btoa derdump ocspclnt pp selfserv shlibsign strsclnt symkeyutil tstclnt vfyserv vfychain
 do
-  %{__install} -m 755 dist/*.OBJ/bin/$file $RPM_BUILD_ROOT/%{unsupported_tools_directory}
+  %{__install} -m 755 dist/*OPT.OBJ/bin/$file $RPM_BUILD_ROOT/%{unsupported_tools_directory}
 done
 
 # Copy the include files we want
@@ -259,12 +270,19 @@ do
   %{__install} -m 644 $file $RPM_BUILD_ROOT/%{_includedir}/nss3
 done
 
+# pem
+%{__install} -m 755 nss-pem-1.0.4/build/libnsspem.so $RPM_BUILD_ROOT/%{_libdir}
+%{__install} -m 644 nss-pem-1.0.4/src/nsspem.h $RPM_BUILD_ROOT/%{_includedir}/nss3
+
+# pkgconfig
+%{__mkdir_p} $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
+%{__install} -m 644 dist/%{_libdir}/pkgconfig/nss.pc $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 
 
-%post -p /sbin/ldconfig 
+%post -p /sbin/ldconfig
 
 
 %postun  -p /sbin/ldconfig
@@ -345,7 +363,7 @@ done
 %{_bindir}/nss-config
 
 %dir %{_includedir}/nss3
-%{_includedir}/nss3/base64.h
+%{_includedir}/nss3/*
 %{_includedir}/nss3/blapit.h
 %{_includedir}/nss3/cert.h
 %{_includedir}/nss3/certdb.h
@@ -377,7 +395,7 @@ done
 %{_includedir}/nss3/nssilock.h
 %{_includedir}/nss3/nsslocks.h
 %{_includedir}/nss3/nsslowhash.h
-%{_includedir}/nss3/nsspem.h
+#{_includedir}/nss3/nsspem.h
 %{_includedir}/nss3/nssrwlk.h
 %{_includedir}/nss3/nssrwlkt.h
 %{_includedir}/nss3/nssutil.h
@@ -431,6 +449,11 @@ done
 %{_includedir}/nss3/utilmodt.h
 %{_includedir}/nss3/utilpars.h
 %{_includedir}/nss3/utilparst.h
+%{_includedir}/nss3/eccutil.h
+%{_includedir}/nss3/lowkeyi.h
+%{_includedir}/nss3/lowkeyti.h
+%{_includedir}/nss3/pkcs11uri.h
+%{_includedir}/nss3/sslexp.h
 
 %files pkcs11-devel
 %defattr(-, root, root,-)
@@ -446,5 +469,3 @@ done
 %{_includedir}/nss3/nssckt.h
 %{_libdir}/libnssb.a
 %{_libdir}/libnssckfw.a
-
-
