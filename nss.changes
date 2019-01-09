@@ -1,3 +1,7 @@
+* Wed Jan 09 2019 Marko Kenttälä <marko.kenttala@jolla.com> - 3.39-1
+- Update to nss-3.39 and nss-pem-1.0.4, fixes jb#36180
+- Fedora spec file used as a base
+
 * Wed Nov 04 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.20.1
 - Update to 3.20.1
 - Fixes CVE-2015-7181 and CVE-2015-7182. Contributes to MER#1407
@@ -12,7 +16,7 @@
 * Wed Nov 26 2014 John Brooks <john.brooks@jollamobile.com> - 3.16.6
 - Update to 3.16.6 and split libnssckbi into a separate package
 
-* Tue Sep 25 2014 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.16.5
+* Thu Sep 25 2014 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.16.5
 - Update to 3.16.5
 - Fixes CVE-2014-1568.
 
@@ -69,13 +73,13 @@
 * Fri May 13 2011 Anas Nashif <anas.nashif@intel.com> - 3.12.9
 - Do not run test code, it does not work
 
-* Wed 02 Mar 2011 Passion Zhao <passion.zhao@intel.com>
+* Wed Mar 02 2011 Passion Zhao <passion.zhao@intel.com> - 3.12.9
 - Update to 3.12.9 from fennec requirement #BMC13425
 
-* Tue 16 Nov 2010 Stephan Binner <stephan.binner@basyskom.de>
+* Tue Nov 16 2010 Stephan Binner <stephan.binner@basyskom.de> - 3.12.8
 - Update to 3.12.8, disable non-applying likely obsolete patches, BMC#10122
 
-* Fri Apr 30 2010 David Woodhouse <David.Woodhouse@intel.com>
+* Fri Apr 30 2010 David Woodhouse <David.Woodhouse@intel.com> - 3.12.6
 - Fix Mozilla bug #524013 (hopefully MeeGo bug #1558)
 
 * Tue Feb 16 2010 Anas Nashif <anas.nashif@intel.com> - 3.12.5
