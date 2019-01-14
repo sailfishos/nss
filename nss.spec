@@ -17,7 +17,7 @@ rpm.define(string.format("nss_archive_version %s",
 Summary:          Network Security Services
 Name:             nss
 Version:          %{nss_version}
-Release:          1%{?dist}
+Release:          2%{?dist}
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
@@ -36,6 +36,7 @@ BuildRequires:    cmake
 
 Source0:          %{name}-%{nss_archive_version}.tar.gz
 Source1:          nss.pc.in
+Source2:          nss-config.in
 Source3:          blank-cert8.db
 Source4:          blank-key3.db
 Source5:          blank-secmod.db
@@ -290,6 +291,15 @@ NSS_VPATCH=`cat nss/lib/nss/nss.h | grep "#define.*NSS_VPATCH" | awk '{print $3}
 export NSS_VMAJOR
 export NSS_VMINOR
 export NSS_VPATCH
+
+%{__cat} %{SOURCE2} | sed -e "s,@libdir@,%{_libdir},g" \
+                          -e "s,@prefix@,%{_prefix},g" \
+                          -e "s,@exec_prefix@,%{_prefix},g" \
+                          -e "s,@includedir@,%{_includedir}/nss3,g" \
+                          -e "s,@MOD_MAJOR_VERSION@,$NSS_VMAJOR,g" \
+                          -e "s,@MOD_MINOR_VERSION@,$NSS_VMINOR,g" \
+                          -e "s,@MOD_PATCH_VERSION@,$NSS_VPATCH,g" \
+                          > ./dist/pkgconfig/nss-config
 
 # Set up our package file
 # The nspr_version and nss_util_version globals used here
@@ -558,6 +568,7 @@ done
 %{__install} -p -m 644 ./dist/pkgconfig/nss.pc $RPM_BUILD_ROOT/%{_libdir}/pkgconfig/nss.pc
 %{__install} -p -m 644 ./dist/pkgconfig/nss-softokn.pc $RPM_BUILD_ROOT/%{_libdir}/pkgconfig/nss-softokn.pc
 %{__install} -p -m 644 ./dist/pkgconfig/nss-util.pc $RPM_BUILD_ROOT/%{_libdir}/pkgconfig/nss-util.pc
+%{__install} -p -m 755 ./dist/pkgconfig/nss-config $RPM_BUILD_ROOT/%{_bindir}/nss-config
 
 # pem
 %{__install} -m 755 ./nss-pem-1.0.4/build/libnsspem.so $RPM_BUILD_ROOT/%{_libdir}
@@ -744,6 +755,7 @@ ln -s -f setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit
 %{_includedir}/nss3/utilparst.h
 %{_includedir}/nss3/utilrename.h
 %{_includedir}/nss3/templates/templates.c
+%{_bindir}/nss-config
 
 %files pkcs11-devel
 %{_includedir}/nss3/nssbase.h
