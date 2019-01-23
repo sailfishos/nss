@@ -1,3 +1,6 @@
+* Wed Jan 23 2019 Sergey Chupligin <s.chupligin@omprussia.ru> - 3.39-4
+- Make summary short. Fixes MER#2003
+
 * Mon Jan 14 2019 Marko Kenttälä <marko.kenttala@jolla.com> - 3.39-3
 - nss-config back to make xulrunner-qt5 to build, fixes jb#36180
 
