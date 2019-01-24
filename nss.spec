@@ -17,7 +17,7 @@ rpm.define(string.format("nss_archive_version %s",
 Summary:          Network Security Services
 Name:             nss
 Version:          %{nss_version}
-Release:          3%{?dist}
+Release:          4%{?dist}
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
@@ -145,7 +145,7 @@ Requires:         nss >= 3.33
 Network Security Services Softoken and Freebl Cryptographic Modules
 
 %package softokn-freebl-devel
-Summary:          Header and Library files for doing development with the Softoken Freebl libraries for NSS
+Summary:          Development files for Softoken Freebl libraries for NSS
 Group:            System Environment/Base
 Provides:         nss-softokn-freebl-static = %{version}-%{release}
 Requires:         nss-softokn-freebl%{?_isa} = %{version}-%{release}
