@@ -25,7 +25,6 @@ Requires:         nspr >= %{nspr_version}
 Requires:         nss-system-init
 Requires:         p11-kit-trust
 BuildRequires:    nspr-devel >= %{nspr_version}
-BuildRequires:    sqlite-devel
 BuildRequires:    zlib-devel
 BuildRequires:    pkgconfig
 BuildRequires:    gawk
@@ -50,7 +49,6 @@ Source14:         nss-pem-1.0.4.tar.xz
 Source15:         nss-pem.cmake
 Source16:         nss-prelink.conf
 
-Patch1:           nss-nolocalsql.patch
 Patch2:           add-relro-linker-option.patch
 Patch3:           renegotiate-transitional.patch
 Patch8:           nss-sysinit-userdb-first.patch
@@ -73,6 +71,7 @@ Patch50:          iquote.patch
 # Local patch for TLS_ECDHE_{ECDSA|RSA}_WITH_3DES_EDE_CBC_SHA ciphers
 Patch58: rhbz1185708-enable-ecc-3des-ciphers-by-default.patch
 Patch62: nss-skip-util-gtest.patch
+Patch63: Rename-sqlite-library-to-avoid-clashing-with-system.patch
 
 %description
 Network Security Services (NSS) is a set of libraries designed to
@@ -169,7 +168,6 @@ PEM file reader for Network Security Services (NSS), implemented as a PKCS#11 mo
 %setup -q -n %{name}-%{nss_archive_version}
 %setup -q -T -D -n %{name}-%{nss_archive_version} -a 14
 
-%patch1 -p0 -b .nolocalsql
 %patch2 -p0 -b .relro
 %patch3 -p0 -b .transitional
 %patch8 -p0 -b .userdbfirst
@@ -180,6 +178,7 @@ PEM file reader for Network Security Services (NSS), implemented as a PKCS#11 mo
 pushd nss
 %patch62 -p1 -b .skip_util_gtest
 popd
+%patch63 -p1 -b .rename_sqlite3
 
 %build
 
@@ -225,9 +224,6 @@ export NSPR_LIB_DIR
 
 export NSSUTIL_INCLUDE_DIR=`/usr/bin/pkg-config --cflags-only-I nss-util | sed 's/-I//'`
 export NSSUTIL_LIB_DIR=%{_libdir}
-
-NSS_USE_SYSTEM_SQLITE=1
-export NSS_USE_SYSTEM_SQLITE
 
 export NSS_ALLOW_SSLKEYLOGFILE=1
 
@@ -498,7 +494,7 @@ echo "test suite completed"
 %{__mkdir_p} $RPM_BUILD_ROOT%{_datadir}/doc/nss-tools
 
 # Copy the binary libraries we want
-for file in libnss3.so libnsssysinit.so libsmime3.so libssl3.so libsoftokn3.so libsoftokn3.chk libnssdbm3.so libnssdbm3.chk libfreebl3.so libfreebl3.chk libfreeblpriv3.so libfreeblpriv3.chk libnssutil3.so
+for file in libnss3.so libnsssysinit.so libsmime3.so libssl3.so libsoftokn3.so libsoftokn3.chk libnssdbm3.so libnssdbm3.chk libfreebl3.so libfreebl3.chk libfreeblpriv3.so libfreeblpriv3.chk libnsssqlite3.so libnssutil3.so
 do
   %{__install} -p -m 755 dist/*.OBJ/lib/$file $RPM_BUILD_ROOT/%{_libdir}
 done
@@ -601,6 +597,7 @@ ln -s -f setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit
 %{_libdir}/libfreebl3.chk
 %{_libdir}/libfreeblpriv3.so
 %{_libdir}/libfreeblpriv3.chk
+%{_libdir}/libnsssqlite3.so
 %dir %{_sysconfdir}/pki/nssdb
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/cert8.db
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/key3.db
