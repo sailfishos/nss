@@ -1,3 +1,6 @@
+* Thu Mar 07 2019 Andrew Branson <andrew.branson@jollamobile.com> - 3.39-7
+- [build] Switch to internal sqlite for NSS, to avoid build problems. JB#36034
+
 * Wed Jan 23 2019 Sergey Chupligin <s.chupligin@omprussia.ru> - 3.39-4
 - Make summary short. Fixes MER#2003
 

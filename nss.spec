@@ -17,7 +17,7 @@ rpm.define(string.format("nss_archive_version %s",
 Summary:          Network Security Services
 Name:             nss
 Version:          %{nss_version}
-Release:          4%{?dist}
+Release:          7%{?dist}
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
 Group:            System Environment/Libraries
