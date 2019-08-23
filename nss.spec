@@ -159,7 +159,6 @@ Developers should rely only on the officially supported NSS public API.
 
 %package pem
 Summary:          PEM file reader for Network Security Services
-Group:            System Environment/Libraries
 Requires:         nspr >= %{nspr_version}
 
 %description pem
@@ -589,6 +588,7 @@ ln -s -f setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit
 
 %files
 %license nss/COPYING
+%dir %{_libdir}/nss
 %{_libdir}/libnss3.so
 %{_libdir}/libssl3.so
 %{_libdir}/libsmime3.so
@@ -614,8 +614,6 @@ ln -s -f setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit
 %{unsupported_tools_directory}/shlibsign
 
 %files softokn-freebl
-%license nss/COPYING
-%dir %{_libdir}/nss
 %dir %{saved_files_dir}
 %dir %{unsupported_tools_directory}
 %{unsupported_tools_directory}/bltest
