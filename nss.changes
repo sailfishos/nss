@@ -1,3 +1,6 @@
+* Wed Sep 11 2019 Marko Kenttälä <marko.kenttala@jolla.com> - 3.39-9
+- Drop installation requirement of nss-devel from softokn-freebl. Fixes JB#45887
+
 * Tue Mar 12 2019 Andrew Branson <andrew.branson@jollamobile.com> - 3.39-8
 - Revert previous change as NSS is no longer in the critical build path. JB#36034
 
