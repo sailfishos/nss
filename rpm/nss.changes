@@ -1,0 +1,120 @@
+* Wed Sep 11 2019 Marko Kenttälä <marko.kenttala@jolla.com> - 3.39-9
+- Drop installation requirement of nss-devel from softokn-freebl. Fixes JB#45887
+
+* Tue Mar 12 2019 Andrew Branson <andrew.branson@jollamobile.com> - 3.39-8
+- Revert previous change as NSS is no longer in the critical build path. JB#36034
+
+* Thu Mar 07 2019 Andrew Branson <andrew.branson@jollamobile.com> - 3.39-7
+- [build] Switch to internal sqlite for NSS, to avoid build problems. JB#36034
+
+* Wed Jan 23 2019 Sergey Chupligin <s.chupligin@omprussia.ru> - 3.39-4
+- Make summary short. Fixes MER#2003
+
+* Mon Jan 14 2019 Marko Kenttälä <marko.kenttala@jolla.com> - 3.39-3
+- nss-config back to make xulrunner-qt5 to build, fixes jb#36180
+
+* Wed Jan 09 2019 Marko Kenttälä <marko.kenttala@jolla.com> - 3.39-1
+- Update to nss-3.39 and nss-pem-1.0.4, fixes jb#36180
+- Fedora spec file used as a base
+
+* Wed Nov 04 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.20.1
+- Update to 3.20.1
+- Fixes CVE-2015-7181 and CVE-2015-7182. Contributes to MER#1407
+
+* Thu Aug 20 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.19.2
+- Update to 3.19.2. Fixes MER#1254
+- Fixes CVE-2015-2721, CVE-2015-2730
+
+* Wed Mar 11 2015 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.16.6
+- Fix nss.changes
+
+* Wed Nov 26 2014 John Brooks <john.brooks@jollamobile.com> - 3.16.6
+- Update to 3.16.6 and split libnssckbi into a separate package
+
+* Thu Sep 25 2014 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.16.5
+- Update to 3.16.5
+- Fixes CVE-2014-1568.
+
+* Tue Aug 19 2014 Pasi Sjöholm <pasi.sjoholm@jollamobile.com> - 3.16.4
+- Update to 3.16.4
+- Fixes CVE-2014-1544, CVE-2014-1491,  CVE-2014-1490, CVE-2013-5605,
+  CVE-2013-1739, CVE-2013-1741, CVE-2013-0791.
+- Updated nss-pem to nss-pem-20140125.
+- Removed bug-658222-false-start.patch, nss-3.12.8-char.patch and
+  0001-sync-up-with-upstream-softokn-changes.patch.
+- Removed mozilla-crypto-strip.sh as EC is enabled in openssl-1.0.1i.
+- Updated the license in spec to MPLv2.
+
+* Tue Jul 23 2013 Dmitry Rozhkov <dmitry.rozhkov@jollamobile.com> - 3.15.1
+- Update to 3.15.1
+- Dropped add_SEC_PKCS7VerifyDetachedSignatureAtTime_842856.patch as it's
+  now in upstream
+- Added bug-658222-false-start.patch synchronizing the SSL code with that
+  in mozilla-central/nss code tree.
+
+* Fri Apr 05 2013 Dmitry Rozhkov <dmitry.rozhkov@jollamobile.com> - 3.14.3
+- Update to 3.14.3
+
+* Tue Jan 22 2013 Oleg Girko <ol+mer@infoserver.ru> - 3.13.3
+- Do not rely on already installed nss to sign shared libraries.
+
+* Sat Apr 07 2012 Marko Saukko <sage@merproject.org> - 3.13.3
+- Some files are packaged twice by accident that causes conflicts.
+
+* Tue Feb 28 2012 Marko Saukko <marko.saukko@gmail.com> - 3.13.3
+- Fixes MER#58: Update to version 3.13.3.
+- Moved libs from /lib/ to /usr/lib/ part of MER#174
+- Use system sqlite and zlib
+
+* Fri Nov 25 2011 Carsten Munk <carsten@maemo.org> - 3.12.10
+- Add patch to remove timestamps from nss, reducing rebuilds severely.
+
+* Fri Jul 15 2011 Elena Reshetova <elena.reshetova@linux.intel.com> - 3.12.10
+- Upgrade to 3.12.10
+  - patch nss-sysinit-fix-trustorder.patch removed
+  - patch nss-sysinit-userdb-first.patch upgraded
+
+* Wed Jul 13 2011 Ulf Hofemeier <ulf.hofemeier@linux.intel.com> - 3.12.9
+- Removed patch nss-bug524013.patch from project directory
+
+* Tue Jun 28 2011 Yan Li <yan.i.li@intel.com> - 3.12.9
+- Fixed bugs of importing certs into user db, required by enterprise
+  features (RH#643123, RH#603313)
+- Remove obsoleted patch files
+  - nss-sysinit.patch
+  - nss-sysinit-2.patch
+  - nss-bug524013.patch
+
+* Fri May 13 2011 Anas Nashif <anas.nashif@intel.com> - 3.12.9
+- Do not run test code, it does not work
+
+* Wed Mar 02 2011 Passion Zhao <passion.zhao@intel.com> - 3.12.9
+- Update to 3.12.9 from fennec requirement #BMC13425
+
+* Tue Nov 16 2010 Stephan Binner <stephan.binner@basyskom.de> - 3.12.8
+- Update to 3.12.8, disable non-applying likely obsolete patches, BMC#10122
+
+* Fri Apr 30 2010 David Woodhouse <David.Woodhouse@intel.com> - 3.12.6
+- Fix Mozilla bug #524013 (hopefully MeeGo bug #1558)
+
+* Tue Feb 16 2010 Anas Nashif <anas.nashif@intel.com> - 3.12.5
+- Fixed compile warnings
+
+* Wed Dec 16 2009 David Woodhouse <David.Woodhouse@intel.com>
+- nss-sysinit package needs to require coreutils
+
+* Sun Dec 13 2009 David Woodhouse <David.Woodhouse@intel.com>
+- Update to 3.12.5
+- Support shared system database
+
+* Sat Apr 25 2009 Anas Nashif <anas.nashif@intel.com> 3.12.3
+- Update to 3.12.3
+
+* Fri Apr 03 2009 Anas Nashif <anas.nashif@intel.com> 3.11.99.5
+- Add PreReq on ldconfig
+
+* Fri Apr 03 2009 Anas Nashif <anas.nashif@intel.com> 3.11.99.5
+- Add PreReq on ldconfig
+
+* Tue Dec 02 2008 Anas Nashif <anas.nashif@intel.com> 3.11.99.5
+- Fixed %install section
