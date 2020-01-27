@@ -1,0 +1,3 @@
+[submodule "nss"]
+	path = nss
+	url = https://git.sailfishos.org/mirror/nss

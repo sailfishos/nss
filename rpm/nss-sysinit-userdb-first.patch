@@ -1,0 +1,38 @@
+--- ./nss/lib/sysinit/nsssysinit.c.603313	2017-11-14 10:01:25.000000000 +0200
++++ ./nss/lib/sysinit/nsssysinit.c	2017-11-22 16:28:56.324234787 +0200
+@@ -231,6 +231,17 @@ get_list(char *filename, char *stripped_
+     sysdb = getSystemDB();
+     userdb = getUserDB();
+ 
++    /* return a list of databases to open. First the system database */
++    if (sysdb) {
++        const char *readonly = userCanModifySystemDB() ? "" : "flags=readonly";
++        module_list[next++] = PR_smprintf(
++            "library= "
++            "module=\"NSS system database\" "
++            "parameters=\"configdir='sql:%s' tokenDescription='NSS system database' %s\" "
++            "NSS=\"trustOrder=80 %sflags=internal,critical\"",
++            sysdb, readonly, nssflags);
++    }
++
+     /* Don't open root's user DB */
+     if (userdb != NULL && !userIsRoot()) {
+         /* return a list of databases to open. First the user Database */
+@@ -252,17 +263,6 @@ get_list(char *filename, char *stripped_
+             userdb, stripped_parameters);
+     }
+ 
+-    /* now the system database (always read only unless it's root) */
+-    if (sysdb) {
+-        const char *readonly = userCanModifySystemDB() ? "" : "flags=readonly";
+-        module_list[next++] = PR_smprintf(
+-            "library= "
+-            "module=\"NSS system database\" "
+-            "parameters=\"configdir='sql:%s' tokenDescription='NSS system database' %s\" "
+-            "NSS=\"trustOrder=80 %sflags=internal,critical\"",
+-            sysdb, readonly, nssflags);
+-    }
+-
+     /* that was the last module */
+     module_list[next] = 0;
+ 
