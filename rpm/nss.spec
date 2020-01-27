@@ -74,6 +74,7 @@ Source26:         key4.db.xml
 Source27:         secmod.db.xml	
 Source28:         nss-p11-kit.config
 
+
 Patch1:           nss-nolocalsql.patch
 Patch2:           add-relro-linker-option.patch
 Patch3:           renegotiate-transitional.patch
@@ -585,10 +586,6 @@ done
 %{__install} -p -m 644 %{SOURCE14} $RPM_BUILD_ROOT/%{_sysconfdir}/pki/nssdb/key4.db
 %{__install} -p -m 644 %{SOURCE15} $RPM_BUILD_ROOT/%{_sysconfdir}/pki/nssdb/pkcs11.txt
 
-# prelink
-#{__mkdir_p} $RPM_BUILD_ROOT/#{_sysconfdir}/prelink.conf.d
-#{__install} -m 644 #{SOURCE14} $RPM_BUILD_ROOT/#{_sysconfdir}/prelink.conf.d/nss-prelink.conf
-
 # Copy the development libraries we want
 for file in libcrmf.a libnssb.a libnssckfw.a
 do
@@ -679,8 +676,6 @@ update-crypto-policies &> /dev/null || :
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/key4.db
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/pkcs11.txt
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/crypto-policies/local.d/nss-p11-kit.config
-#dir #{_sysconfdir}/prelink.conf.d
-#config #{_sysconfdir}/prelink.conf.d/nss-prelink.conf
 %dir %{unsupported_tools_directory}
 %{unsupported_tools_directory}/shlibsign
 
