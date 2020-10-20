@@ -1,4 +1,4 @@
-%global nspr_version 4.24
+%global nspr_version 4.29
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 %global saved_files_dir %{_libdir}/nss/saved
 %global dracutlibdir %{_prefix}/lib/dracut
@@ -30,7 +30,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.49
+Version:          3.58
 Release:          1
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
@@ -40,13 +40,12 @@ Requires:         nss-softokn%{_isa} >= %{version}
 Requires:         nss-system-init
 Requires:         p11-kit-trust
 BuildRequires:    nspr-devel >= %{nspr_version}
-BuildRequires:    sqlite-devel
+BuildRequires:    pkgconfig(sqlite3)
 BuildRequires:    zlib-devel
 BuildRequires:    pkgconfig
 BuildRequires:    gawk
 BuildRequires:    psmisc
 BuildRequires:    perl
-BuildRequires:    cmake
 
 Source0:          %{name}-%{version}.tar.gz
 Source1:          nss-util.pc.in
@@ -75,14 +74,9 @@ Source27:         secmod.db.xml
 Source28:         nss-p11-kit.config
 
 
-Patch1:           nss-nolocalsql.patch
 Patch2:           add-relro-linker-option.patch
 Patch3:           renegotiate-transitional.patch
 Patch8:           nss-sysinit-userdb-first.patch
-# add missing ike mechanism to softoken
-Patch10:          nss-3.47-ike-fix.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=1608327
-Patch11:          nss-3.49-neon-build-fixes.patch
 # Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=617723
 Patch16:          nss-539183.patch
 # TODO remove when we switch to building nss without softoken
@@ -224,12 +218,9 @@ Header and library files for doing development with Network Security Services.
 %prep
 %setup -q -n %{name}-%{version}/%{name}
 
-%patch1 -p1 -b .nolocalsql
 %patch2 -p1 -b .relro
 %patch3 -p1 -b .transitional
 %patch8 -p2 -b .sysinit_userdb
-%patch10 -p2 -b .ike_fix
-%patch11 -p2 -b .neon_build
 %patch16 -p2 -b .539183
 %patch49 -p2 -b .skip_bltest
 %patch50 -p1 -b .iquote
@@ -238,19 +229,18 @@ Header and library files for doing development with Network Security Services.
 
 
 %build
-FREEBL_NO_DEPEND=1
-export FREEBL_NO_DEPEND
+# TODO: new build system with gyp & ninja
+
+export FREEBL_NO_DEPEND=1
 
 # Must export FREEBL_LOWHASH=1 for nsslowhash.h so that it gets
 # copied to dist and the rpm install phase can find it
 # This due of the upstream changes to fix
 # https://bugzilla.mozilla.org/show_bug.cgi?id=717906
-FREEBL_LOWHASH=1
-export FREEBL_LOWHASH
+export FREEBL_LOWHASH=1
 
 # Enable FIPS startup test
-NSS_FORCE_FIPS=1
-export NSS_FORCE_FIPS
+export NSS_FORCE_FIPS=1
 
 # Enable compiler optimizations and disable debugging code
 export BUILD_OPT=1
@@ -260,38 +250,28 @@ export BUILD_OPT=1
 #export RPM_OPT_FLAGS
 
 # Generate symbolic info for debuggers
-XCFLAGS=$RPM_OPT_FLAGS
-export XCFLAGS
+export XCFLAGS=$RPM_OPT_FLAGS
 
-LDFLAGS=$RPM_LD_FLAGS
-export LDFLAGS
+export LDFLAGS=$RPM_LD_FLAGS
 
-PKG_CONFIG_ALLOW_SYSTEM_LIBS=1
-PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1
+export PKG_CONFIG_ALLOW_SYSTEM_LIBS=1
+export PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1
 
-export PKG_CONFIG_ALLOW_SYSTEM_LIBS
-export PKG_CONFIG_ALLOW_SYSTEM_CFLAGS
+export NSPR_INCLUDE_DIR=`/usr/bin/pkg-config --cflags-only-I nspr | sed 's/-I//'`
+export NSPR_LIB_DIR=%{_libdir}
 
-NSPR_INCLUDE_DIR=`/usr/bin/pkg-config --cflags-only-I nspr | sed 's/-I//'`
-NSPR_LIB_DIR=%{_libdir}
+export NSS_USE_SYSTEM_SQLITE=1
 
-export NSPR_INCLUDE_DIR
-export NSPR_LIB_DIR
+export USE_SYSTEM_ZLIB=1
+export ZLIB_LIBS=-lz
 
-export NSSUTIL_INCLUDE_DIR=`/usr/bin/pkg-config --cflags-only-I nss-util | sed 's/-I//'`
-export NSSUTIL_LIB_DIR=%{_libdir}
-
-NSS_USE_SYSTEM_SQLITE=1
-export NSS_USE_SYSTEM_SQLITE
-
-export NSS_ALLOW_SSLKEYLOGFILE=1
+#export NSS_ALLOW_SSLKEYLOGFILE=1
 
 export NSS_DISABLE_GTESTS=1
 
 %ifnarch noarch
 %if 0%{__isa_bits} == 64
-USE_64=1
-export USE_64
+export USE_64=1
 %endif
 %endif
 
@@ -299,10 +279,6 @@ export USE_64
 export IN_TREE_FREEBL_HEADERS_FIRST=1
 
 ##### phase 2: build the rest of nss
-export NSS_BLTEST_NOT_AVAILABLE=1
-
-%{__make} -C coreconf
-%{__make} -C lib/dbm
 
 # Set the policy file location
 # if set NSS will always check for the policy file and load if it exists
@@ -310,11 +286,12 @@ export POLICY_FILE="nss.config"
 # location of the policy file
 export POLICY_PATH="/etc/crypto-policies/back-ends"
 
-%{__make}
+%{__make} all
+%{__make} latest
+
 # This will copy to dist dir and sign libraries
 %{__make} install
 
-unset NSS_BLTEST_NOT_AVAILABLE
 
 # Disable man pages, since make dont find xmlto command.
 # build the man pages clean
@@ -741,6 +718,7 @@ update-crypto-policies &> /dev/null || :
 %{_includedir}/nss3/p12plcy.h
 %{_includedir}/nss3/p12t.h
 %{_includedir}/nss3/pk11func.h
+%{_includedir}/nss3/pk11hpke.h
 %{_includedir}/nss3/pk11pqg.h
 %{_includedir}/nss3/pk11priv.h
 %{_includedir}/nss3/pk11pub.h
