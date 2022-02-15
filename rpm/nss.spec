@@ -653,8 +653,6 @@ update-crypto-policies &> /dev/null || :
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/key4.db
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/pki/nssdb/pkcs11.txt
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/crypto-policies/local.d/nss-p11-kit.config
-%dir %{unsupported_tools_directory}
-%{unsupported_tools_directory}/shlibsign
 
 %files sysinit
 %{_libdir}/libnsssysinit.so
