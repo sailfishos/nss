@@ -1,6 +1,6 @@
 --- ./nss/lib/sysinit/nsssysinit.c.603313	2017-11-14 10:01:25.000000000 +0200
 +++ ./nss/lib/sysinit/nsssysinit.c	2017-11-22 16:28:56.324234787 +0200
-@@ -231,6 +231,17 @@ get_list(char *filename, char *stripped_
+@@ -246,6 +246,17 @@ get_list(char *filename, char *stripped_
      sysdb = getSystemDB();
      userdb = getUserDB();
  
@@ -18,7 +18,7 @@
      /* Don't open root's user DB */
      if (userdb != NULL && !userIsRoot()) {
          /* return a list of databases to open. First the user Database */
-@@ -252,17 +263,6 @@ get_list(char *filename, char *stripped_
+@@ -267,17 +278,6 @@ get_list(char *filename, char *stripped_
              userdb, stripped_parameters);
      }
  

@@ -1,4 +1,4 @@
-%global nspr_version 4.29
+%global nspr_version 4.35
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 %global saved_files_dir %{_libdir}/nss/saved
 %global dracutlibdir %{_prefix}/lib/dracut
@@ -9,14 +9,14 @@
 
 # Produce .chk files for the final stripped binaries
 #
-# NOTE: The LD_LIBRARY_PATH line guarantees shlibsign links	
+# NOTE: The LD_LIBRARY_PATH line guarantees shlibsign links
 # against the freebl that we just built. This is necessary
 # because the signing algorithm changed on 3.14 to DSA2 with SHA256
 # whereas we previously signed with DSA and SHA1. We must Keep this line
 # until all mock platforms have been updated.
 # After %%{__os_install_post} we would add
 # export LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%%{_libdir}
-	
+
 %define __spec_install_post \
     %{?__debug_package:%{__debug_install_post}} \
     %{__arch_install_post} \
@@ -30,7 +30,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.73.1
+Version:          3.101
 Release:          1
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
@@ -70,17 +70,13 @@ Source23:         cert8.db.xml
 Source24:         cert9.db.xml
 Source25:         key3.db.xml
 Source26:         key4.db.xml
-Source27:         secmod.db.xml	
+Source27:         secmod.db.xml
 Source28:         nss-p11-kit.config
 
 
 Patch2:           add-relro-linker-option.patch
 Patch3:           renegotiate-transitional.patch
 Patch8:           nss-sysinit-userdb-first.patch
-# Upstream: https://bugzilla.mozilla.org/show_bug.cgi?id=617723
-Patch16:          nss-539183.patch
-# TODO remove when we switch to building nss without softoken
-Patch49:          nss-skip-bltest-and-fipstest.patch
 # This patch uses the GCC -iquote option documented at
 # http://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html#Directory-Options
 # to give the in-tree headers a higher priority over the system headers,
@@ -93,9 +89,6 @@ Patch49:          nss-skip-bltest-and-fipstest.patch
 # Once the buildroot aha been bootstrapped the patch may be removed
 # but it doesn't hurt to keep it.
 Patch50:          iquote.patch
-# Local patch for TLS_ECDHE_{ECDSA|RSA}_WITH_3DES_EDE_CBC_SHA ciphers
-Patch58:          rhbz1185708-enable-ecc-3des-ciphers-by-default.patch
-Patch62:          nss-skip-util-gtest.patch
 
 %description
 Network Security Services (NSS) is a set of libraries designed to
@@ -155,10 +148,10 @@ low level services.
 %package util
 Summary:          Network Security Services Utilities Library
 Requires:         nspr >= %{nspr_version}
-	
+
 %description util
 Utilities for Network Security Services and the Softoken module
-	
+
 %package util-devel
 Summary:          Development libraries for Network Security Services Utilities
 Requires:         nss-util%{?_isa} = %{version}-%{release}
@@ -173,7 +166,7 @@ Summary:          Network Security Services Softoken Module
 Requires:         nspr >= %{nspr_version}
 Requires:         nss-util >= %{version}-%{release}
 Requires:         nss-softokn-freebl%{_isa} >= %{version}-%{release}
-	
+
 %description softokn
 Network Security Services Softoken Cryptographic Module. Softoken is an NSS 
 module that exposes most FreeBL functionality as a PKCS#11 module.
@@ -202,7 +195,7 @@ This package supports special needs of some PKCS #11 module developers and
 is otherwise considered private to NSS. As such, the programming interfaces
 may change and the usual NSS binary compatibility commitments do not apply.
 Developers should rely only on the officially supported NSS public API.
-	
+
 %package softokn-devel
 Summary:          Development libraries for Network Security Services
 Requires:         nss-softokn%{?_isa} = %{version}-%{release}
@@ -211,7 +204,7 @@ Requires:         nspr-devel >= %{nspr_version}
 Requires:         nss-util-devel >= %{version}-%{release}
 Requires:         pkgconfig
 BuildRequires:    nspr-devel >= %{nspr_version}
-	
+
 %description softokn-devel
 Header and library files for doing development with Network Security Services.
 
@@ -221,12 +214,7 @@ Header and library files for doing development with Network Security Services.
 %patch2 -p1 -b .relro
 %patch3 -p1 -b .transitional
 %patch8 -p2 -b .sysinit_userdb
-%patch16 -p2 -b .539183
-%patch49 -p2 -b .skip_bltest
 %patch50 -p1 -b .iquote
-%patch58 -p2 -b .1185708_3des
-%patch62 -p1 -b .skip_util_gtest
-
 
 %build
 # TODO: new build system with gyp & ninja
@@ -305,7 +293,7 @@ export POLICY_PATH="/etc/crypto-policies/back-ends"
 
 # Set up our package files
 mkdir -p ../dist/pkgconfig
-	
+
 cat %{SOURCE1} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%prefix%%,%{_prefix},g" \
                           -e "s,%%exec_prefix%%,%{_prefix},g" \
@@ -313,14 +301,14 @@ cat %{SOURCE1} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%NSPR_VERSION%%,%{nspr_version},g" \
                           -e "s,%%NSSUTIL_VERSION%%,%{version},g" > \
                           ../dist/pkgconfig/nss-util.pc
-	
+
 NSSUTIL_VMAJOR=`cat lib/util/nssutil.h | grep "#define.*NSSUTIL_VMAJOR" | awk '{print $3}'`
 NSSUTIL_VMINOR=`cat lib/util/nssutil.h | grep "#define.*NSSUTIL_VMINOR" | awk '{print $3}'`
 NSSUTIL_VPATCH=`cat lib/util/nssutil.h | grep "#define.*NSSUTIL_VPATCH" | awk '{print $3}'`
 
 export NSSUTIL_VMAJOR
 export NSSUTIL_VMINOR
-export NSSUTIL_VPATCH	
+export NSSUTIL_VPATCH
  
 cat %{SOURCE2} | sed -e "s,@libdir@,%{_libdir},g" \
                           -e "s,@prefix@,%{_prefix},g" \
@@ -330,9 +318,9 @@ cat %{SOURCE2} | sed -e "s,@libdir@,%{_libdir},g" \
                           -e "s,@MOD_MINOR_VERSION@,$NSSUTIL_VMINOR,g" \
                           -e "s,@MOD_PATCH_VERSION@,$NSSUTIL_VPATCH,g" \
                           > ../dist/pkgconfig/nss-util-config
-	
+
 chmod 755 ../dist/pkgconfig/nss-util-config
-	
+
 cat %{SOURCE3} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%prefix%%,%{_prefix},g" \
                           -e "s,%%exec_prefix%%,%{_prefix},g" \
@@ -341,14 +329,14 @@ cat %{SOURCE3} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%NSSUTIL_VERSION%%,%{version},g" \
                           -e "s,%%SOFTOKEN_VERSION%%,%{version},g" > \
                           ../dist/pkgconfig/nss-softokn.pc
-	
+
 SOFTOKEN_VMAJOR=`cat lib/softoken/softkver.h | grep "#define.*SOFTOKEN_VMAJOR" | awk '{print $3}'`
 SOFTOKEN_VMINOR=`cat lib/softoken/softkver.h | grep "#define.*SOFTOKEN_VMINOR" | awk '{print $3}'`
 SOFTOKEN_VPATCH=`cat lib/softoken/softkver.h | grep "#define.*SOFTOKEN_VPATCH" | awk '{print $3}'`
 
 export SOFTOKEN_VMAJOR
 export SOFTOKEN_VMINOR
-export SOFTOKEN_VPATCH	
+export SOFTOKEN_VPATCH
  
 cat %{SOURCE4} | sed -e "s,@libdir@,%{_libdir},g" \
                           -e "s,@prefix@,%{_prefix},g" \
@@ -360,7 +348,7 @@ cat %{SOURCE4} | sed -e "s,@libdir@,%{_libdir},g" \
                           > ../dist/pkgconfig/nss-softokn-config
  
 chmod 755 ../dist/pkgconfig/nss-softokn-config
-	
+
 cat %{SOURCE8} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%prefix%%,%{_prefix},g" \
                           -e "s,%%exec_prefix%%,%{_prefix},g" \
@@ -370,15 +358,15 @@ cat %{SOURCE8} | sed -e "s,%%libdir%%,%{_libdir},g" \
                           -e "s,%%NSSUTIL_VERSION%%,%{version},g" \
                           -e "s,%%SOFTOKEN_VERSION%%,%{version},g" > \
                           ../dist/pkgconfig/nss.pc
-	
+
 NSS_VMAJOR=`cat lib/nss/nss.h | grep "#define.*NSS_VMAJOR" | awk '{print $3}'`
 NSS_VMINOR=`cat lib/nss/nss.h | grep "#define.*NSS_VMINOR" | awk '{print $3}'`
 NSS_VPATCH=`cat lib/nss/nss.h | grep "#define.*NSS_VPATCH" | awk '{print $3}'`
 
 export NSS_VMAJOR
 export NSS_VMINOR
-export NSS_VPATCH	
- 	
+export NSS_VPATCH
+ 
 cat %{SOURCE9} | sed -e "s,@libdir@,%{_libdir},g" \
                           -e "s,@prefix@,%{_prefix},g" \
                           -e "s,@exec_prefix@,%{_prefix},g" \
@@ -387,7 +375,7 @@ cat %{SOURCE9} | sed -e "s,@libdir@,%{_libdir},g" \
                           -e "s,@MOD_MINOR_VERSION@,$NSS_VMINOR,g" \
                           -e "s,@MOD_PATCH_VERSION@,$NSS_VPATCH,g" \
                           > ../dist/pkgconfig/nss-config
-	
+
 chmod 755 ../dist/pkgconfig/nss-config
 
 cat %{SOURCE16} > ../dist/pkgconfig/setup-nsssysinit.sh
@@ -448,9 +436,9 @@ if [ $SPACEISBAD -ne 0 ]; then
   echo "error: filenames containing space are not supported (xargs)"
   exit 1
 fi
-MYRAND=`perl -e 'print 9000 + int rand 1000'`; echo $MYRAND ||:
-RANDSERV=selfserv_${MYRAND}; echo $RANDSERV ||:
-DISTBINDIR=`ls -d ../dist/*.OBJ/bin`; echo $DISTBINDIR ||:
+export MYRAND=`perl -e 'print 9000 + int rand 1000'`; echo $MYRAND
+export RANDSERV=selfserv_${MYRAND}; echo $RANDSERV
+export DISTBINDIR=`ls -d ../dist/*.OBJ/bin`; echo $DISTBINDIR
 pushd `pwd`
 cd $DISTBINDIR
 ln -s selfserv $RANDSERV
@@ -537,7 +525,7 @@ echo "test suite completed"
 %{__mkdir_p} $RPM_BUILD_ROOT/%{unsupported_tools_directory}
 %{__mkdir_p} $RPM_BUILD_ROOT/%{_libdir}/pkgconfig
 %{__mkdir_p} $RPM_BUILD_ROOT/%{saved_files_dir}
-%{__mkdir_p} $RPM_BUILD_ROOT/%{dracut_modules_dir}	
+%{__mkdir_p} $RPM_BUILD_ROOT/%{dracut_modules_dir}
 %{__mkdir_p} $RPM_BUILD_ROOT/%{dracut_conf_dir}
 %{__mkdir_p} $RPM_BUILD_ROOT/%{_sysconfdir}/crypto-policies/local.d
 # because of the pp.1 conflict with perl-PAR-Packer
@@ -624,7 +612,7 @@ done
 ln -s -f setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit
 
 # Copy the crypto-policies configuration file
-	
+
 %{__install} -p -m 644 %{SOURCE28} $RPM_BUILD_ROOT/%{_sysconfdir}/crypto-policies/local.d
 
 %triggerpostun -n nss-sysinit -- nss-sysinit < 3.12.8-3
@@ -636,8 +624,8 @@ ln -s -f setup-nsssysinit.sh $RPM_BUILD_ROOT/%{_bindir}/setup-nsssysinit
 
 %post
 update-crypto-policies &> /dev/null || :
-	
-%postun	
+
+%postun
 update-crypto-policies &> /dev/null || :
 
 %files
@@ -743,8 +731,10 @@ update-crypto-policies &> /dev/null || :
 %{_includedir}/nss3/ciferfam.h
 %{_includedir}/nss3/eccutil.h
 %{_includedir}/nss3/hasht.h
+%{_includedir}/nss3/kyber.h
 %{_includedir}/nss3/nssb64.h
 %{_includedir}/nss3/nssb64t.h
+%{_includedir}/nss3/nsshash.h
 %{_includedir}/nss3/nsslocks.h
 %{_includedir}/nss3/nssilock.h
 %{_includedir}/nss3/nssilckt.h
@@ -809,8 +799,10 @@ update-crypto-policies &> /dev/null || :
 %{_includedir}/nss3/ciferfam.h
 %{_includedir}/nss3/eccutil.h
 %{_includedir}/nss3/hasht.h
+%{_includedir}/nss3/kyber.h
 %{_includedir}/nss3/nssb64.h
 %{_includedir}/nss3/nssb64t.h
+%{_includedir}/nss3/nsshash.h
 %{_includedir}/nss3/nsslocks.h
 %{_includedir}/nss3/nssilock.h
 %{_includedir}/nss3/nssilckt.h
@@ -845,7 +837,7 @@ update-crypto-policies &> /dev/null || :
 %{_includedir}/nss3/templates/templates.c
 
 %files softokn
-%{_libdir}/libnssdbm3.so	
+%{_libdir}/libnssdbm3.so
 %{_libdir}/libnssdbm3.chk
 %{_libdir}/libsoftokn3.so
 %{_libdir}/libsoftokn3.chk
@@ -879,7 +871,7 @@ update-crypto-policies &> /dev/null || :
 %{_includedir}/nss3/cmac.h
 %{_includedir}/nss3/lowkeyi.h
 %{_includedir}/nss3/lowkeyti.h
-	
+
 %files softokn-devel
 %{_libdir}/pkgconfig/nss-softokn.pc
 %{_bindir}/nss-softokn-config
