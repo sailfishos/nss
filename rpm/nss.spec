@@ -30,7 +30,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.101
+Version:          3.117
 Release:          1
 License:          MPLv2.0
 URL:              http://www.mozilla.org/projects/security/pki/nss/
@@ -129,6 +129,8 @@ any system or user configured modules.
 Summary:          Development libraries for Network Security Services
 Provides:         nss-static = %{version}-%{release}
 Requires:         nss = %{version}-%{release}
+Requires:         nss-softokn-devel
+Requires:         nss-util-devel
 Requires:         nspr-devel >= %{nspr_version}
 Requires:         pkgconfig
 
@@ -209,12 +211,7 @@ BuildRequires:    nspr-devel >= %{nspr_version}
 Header and library files for doing development with Network Security Services.
 
 %prep
-%setup -q -n %{name}-%{version}/%{name}
-
-%patch2 -p1 -b .relro
-%patch3 -p1 -b .transitional
-%patch8 -p2 -b .sysinit_userdb
-%patch50 -p1 -b .iquote
+%autosetup -p1 -n %{name}-%{version}/%{name}
 
 %build
 # TODO: new build system with gyp & ninja
@@ -889,4 +886,4 @@ update-crypto-policies &> /dev/null || :
 %{_includedir}/nss3/ecl-exp.h
 %{_includedir}/nss3/nsslowhash.h
 %{_includedir}/nss3/shsign.h
-
+%{_includedir}/nss3/ml_dsat.h
