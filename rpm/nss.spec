@@ -1,4 +1,4 @@
-%global nspr_version 4.35
+%global nspr_version 4.37
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 %global saved_files_dir %{_libdir}/nss/saved
 %global dracutlibdir %{_prefix}/lib/dracut
@@ -33,7 +33,7 @@ Name:             nss
 Version:          3.117
 Release:          1
 License:          MPLv2.0
-URL:              http://www.mozilla.org/projects/security/pki/nss/
+URL:              https://github.com/sailfishos/nss
 Requires:         nspr >= %{nspr_version}
 Requires:         nss-util >= %{version}
 Requires:         nss-softokn%{_isa} >= %{version}
