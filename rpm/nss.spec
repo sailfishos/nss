@@ -1,4 +1,4 @@
-%global nspr_version 4.37
+%global nspr_version 4.38.2
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 %global saved_files_dir %{_libdir}/nss/saved
 %global dracutlibdir %{_prefix}/lib/dracut
@@ -30,7 +30,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.117
+Version:          3.121
 Release:          1
 License:          MPLv2.0
 URL:              https://github.com/sailfishos/nss
