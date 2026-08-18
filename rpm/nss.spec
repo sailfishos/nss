@@ -1,4 +1,4 @@
-%global nspr_version 4.38.2
+%global nspr_version 4.39
 %global unsupported_tools_directory %{_libdir}/nss/unsupported-tools
 %global saved_files_dir %{_libdir}/nss/saved
 %global dracutlibdir %{_prefix}/lib/dracut
@@ -30,7 +30,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.121
+Version:          3.127
 Release:          1
 License:          MPLv2.0
 URL:              https://github.com/sailfishos/nss
@@ -456,8 +456,8 @@ pushd tests/
 #  don't need to run all the tests when testing packaging
 #  nss_cycles: standard pkix upgradedb sharedb
 #  the full list from all.sh is:
-#  "cipher lowhash libpkix cert dbtests tools fips sdr crmf smime ssl ocsp merge pkits chains ec gtests ssl_gtests"
-%define nss_tests "libpkix cert dbtests tools fips sdr crmf smime ssl ocsp merge pkits chains ec gtests ssl_gtests"
+#  "cipher lowhash libpkix cert dbtests tools fips sdr smime ssl ocsp merge pkits chains ec gtests ssl_gtests"
+%define nss_tests "libpkix cert dbtests tools fips sdr smime ssl ocsp merge pkits chains ec gtests ssl_gtests"
 #  nss_ssl_tests: crl bypass_normal normal_bypass normal_fips fips_normal iopr policy
 #  nss_ssl_run: cov auth stapling stress
 #
@@ -549,7 +549,7 @@ done
 %{__install} -p -m 644 %{SOURCE15} $RPM_BUILD_ROOT/%{_sysconfdir}/pki/nssdb/pkcs11.txt
 
 # Copy the development libraries we want
-for file in libcrmf.a libnssb.a libnssckfw.a
+for file in libnssb.a libnssckfw.a
 do
   %{__install} -p -m 644 ../dist/*.OBJ/lib/$file $RPM_BUILD_ROOT/%{_libdir}
 done
@@ -669,20 +669,15 @@ update-crypto-policies &> /dev/null || :
 %{unsupported_tools_directory}/vfychain
 
 %files devel
-%{_libdir}/libcrmf.a
 %{_libdir}/pkgconfig/nss.pc
 %{_bindir}/nss-config
 %dir %{_includedir}/nss3
 %{_includedir}/nss3/cert.h
 %{_includedir}/nss3/certdb.h
 %{_includedir}/nss3/certt.h
-%{_includedir}/nss3/cmmf.h
-%{_includedir}/nss3/cmmft.h
 %{_includedir}/nss3/cms.h
 %{_includedir}/nss3/cmsreclist.h
 %{_includedir}/nss3/cmst.h
-%{_includedir}/nss3/crmf.h
-%{_includedir}/nss3/crmft.h
 %{_includedir}/nss3/cryptohi.h
 %{_includedir}/nss3/cryptoht.h
 %{_includedir}/nss3/sechash.h
