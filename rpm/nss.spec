@@ -30,7 +30,7 @@
 
 Summary:          Network Security Services
 Name:             nss
-Version:          3.127
+Version:          3.131.1
 Release:          1
 License:          MPLv2.0
 URL:              https://github.com/sailfishos/nss
